@@ -1,0 +1,86 @@
+---
+title: 'Homework #3'
+author: "Max Ruehle; mtruehle"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Tips at Restaurants
+
+In this homework we will use the `tips` data set. This data set is part of the `reshape2` package. You can load the data set by executing the command:
+```{r}
+data(tips, package="reshape2")
+```
+The information contained in the data is collected by one waiter, who recorded over the course of a season information about each tip he received working in one restaurant. See `?tips` for a description of all of the variables. 
+
+**Submission instructions**: Create a folder named `ds202_hw3`, and name the RMarkDown file including your solutions `hw3.Rmd` under this folder. For submission, create a GitHub repository named `ds202_hw3` under your GitHub account, and push both `hw3.Rmd` and the knitted `hw3.html` before the deadline. I will assume you use the same GitHub username as for your HW2 submission. The latest version of your homework appearing on GitHub before the deadline is graded. *It is crucial to follow the exact folder structure and file names*, so that your homework can be reproduced and graded by an automated script. This homework is **due on Feb 19** before class.
+
+```{r}
+library(classdata)
+```
+
+
+1.  How many parties did the waiter serve? Store the number in `numParty` and print. 
+```{r}
+numParty <- nrow(tips)
+numParty
+```
+
+2. What are the types of variables in the data frame `tips`? 
+```{r}
+str(tips)
+
+# There is num, factors with 2 and 4 levels, and int
+```
+
+3. Create a vector named `day` containing the day of visits in `tips`. The factor levels should be ordered from Thursday to Sunday. Also print the variable.
+```{r}
+day <- sort(tips$day, levels=c("Thur", "Fri", "Sat", "Sun"))
+day
+```
+
+4. Create a data frame named `female5` containing the meal paid by a female payer in a  party with size greater than or euqal to 5. Also print the data frame.
+```{r}
+female5 = subset(tips, sex == "Female")
+female5 = subset(female5, size >= 5)
+female5
+```
+
+5. How does the tipping amount (`tip`) depend on the overall bill (`total_bill`)? Describe the relationship in words. Describe at least two types of anomalies in the plot. What do they mean? Use the `ggplot2` package to make a chart.
+```{r}
+# There is a positive correlation between the total bill and the tip. There is one anomaly where the total bill was under $10 and a tip over $5 was received. Another anomoly is where the total bill was over $30 and the tip was just over a dollar.
+library(ggplot2)
+ggplot(tips, aes(x=total_bill, y=tip)) + geom_point()
+```
+
+6. Introduce a variable `tiprate` into the data set, that incorporates the rate of tips. What is the average rate for tips?
+```{r}
+tips$tiprate <- tips$tip/tips$total_bill
+mean(tips$tiprate)
+```
+
+7. Make a boxplot of the tip rate by time. The x-axis should be ordered by lunch and then dinner. Use the `ggplot2` package to make a chart.
+```{r}
+ggplot(tips, aes(x=time, y=tiprate)) + geom_boxplot() + scale_x_discrete(limits=c("Lunch", "Dinner"))
+```
+
+8. How does smoking behavior and gender of the person who pays impact the  relationship between tip and total bill? Find a visualization that incorporates all four variables. Interpret the result.
+```{r}
+ggplot(tips, aes(x=total_bill, y=tip, shape=sex, color=smoker)) + geom_point()
+
+# Typically people who smoke give lower tips compared to non-smokers. If you don't smoke and are a male, you are more likely to give a higher tip.
+```
+
+9. Use ggplot2 to find a graphical summary of the relationship between day of the week and gender of the person paying the bill. What can you say about this relationship?
+```{r}
+ggplot(tips, aes(x=day, fill=sex)) + geom_bar(position = position_dodge()) + scale_x_discrete(limits=c("Thur", "Fri", "Sat", "Sun"))
+
+# Women usually pay the bill more on Thursdays but men pay the bill more often on the weekend.
+```
+
+
+Note: your submission is supposed to be fully reproducible, i.e. the TA and I will 'knit' your submission in RStudio. 
+
